@@ -29,15 +29,15 @@ self.addEventListener('fetch', async e => {
 
     if (url.origin === location.origin) {
         //below line indicate if the requested url is same and no internet then fetch the date from the cache
-        e.respondWith(cacheFirst(req));
+        e.respondWith(displayFirstCache(req));
     } else {
         //below line indicate else make a call to the internet and fetch the new data.
-        e.respondWith(networkAndCache(req));
+        e.respondWith(callNetworkFirstAndThenDoCache(req));
     }
 });
 
 //This fuction will be used to take the data from the cache defined in cacheName
-async function cacheFirst(req) {
+async function displayFirstCache(req) {
     //Opening the cachee
     const cache = await caches.open(cacheName);
     //Matching the request
@@ -47,7 +47,7 @@ async function cacheFirst(req) {
 }
 
 //This fuction will be used to take the data from the internet and fill the new values in the cache defined in cacheName
-async function networkAndCache(req) {
+async function callNetworkFirstAndThenDoCache(req) {
     const cache = await caches.open(cacheName);
     try {
         //calling internet and taking new data.
