@@ -8,7 +8,7 @@ const staticAssets = [
     './image/siddhu.jpg'
 ];
 
-//Install :- In this step we will check if the browser allows us to use the PWA functionality. If not we will show error to the end user.
+//Install :- This will be executed if site is accessed fresh or the version of the brower change
 self.addEventListener('install', async e => {
     const cache = await caches.open(cacheName);
     await cache.addAll(staticAssets);

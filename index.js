@@ -3,7 +3,7 @@ window.addEventListener('load', () => {
   syncButton()
 });
 
-//register the sw.js with the browser.
+//register the sw.js with the browser. In this step we will check if the browser allows us to use the PWA functionality. If not we will show error to the end user.
 async function registerSW() {
   if ('serviceWorker' in navigator) {
     try {
