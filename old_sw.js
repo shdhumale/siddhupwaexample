@@ -11,19 +11,48 @@ const staticAssets = [
 //Install :- This will be executed if site is accessed fresh or the version of the SW change. This is called immediately 
 // Once the browser detect the new version of SW for registration. 
 self.addEventListener('install', async e => {
-    const cache = await caches.open(cacheName);
-    await cache.addAll(staticAssets);
-    //below line of code will tell start working as soon as request is made. 
-    return self.skipWaiting();
+    e.waitUntil(
+        cache.open(cacheName).then(cache => {
+            return cache.addAll(staticAssets);
+        }).then(() => {
+            return self.skipWaiting();
+        })
+    )
+    /*  const cache = await caches.open(cacheName);
+     await cache.addAll(staticAssets);
+     //below line of code will tell start working as soon as request is made. 
+     return self.skipWaiting(); */
 });
 //Activate :- In this step we will delete all the old cache and refill it with the new data that we get from the internet. This will 
 // always be called once the user closed all the other browser instance and again install is called followed by Activate else it
 // may create intrupt to the existing fucntionality/tab of the user.
 self.addEventListener('activate', e => {
-    //below line of code will tell old cache will be deleted and new will be created for new service worker.
-    self.clients.claim();
+    /*  //below line of code will tell old cache will be deleted and new will be created for new service worker.
+     self.clients.claim(); */
+    e.waitUntil(
+        caches.keys().then(keyList => {
+            return Promise.all(keyList.map(
+                key => {
+                    if (key != cacheName) {
+                        return caches.delete(key);
+                    }
+                }
+            ))
+        })
+    );
+    return self.clients.claim();
+
 });
-//Fetch:- Here we do following things
+
+self.addEventListener('fetch', e => {
+    e.respondWith(
+        caches.match(e.request).then(response => {
+            return response || fetch(e.request);
+        }));
+});
+
+
+/* //Fetch:- Here we do following things
 //Step A:- Frist check if the internet is online. If online then we will make a call to server using internet and cache the new data.
 //Step B:- If no internet then show the result from the cache to the end users.
 self.addEventListener('fetch', async e => {
@@ -64,7 +93,7 @@ async function callNetworkFirstAndThenDoCache(req) {
         return cached;
     }
 }
-
+ */
 //this method is used to show the push notification to the user even though they are offline.
 self.addEventListener('push', function (event) {
     console.log('[Service Worker] Push Received.');
